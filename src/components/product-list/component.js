@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import { Avatar, Button } from 'antd';
-import MemoComponent from './data-list';
+
+const MemoComponent = lazy(() => import('./data-list'));
 
 const data = [
   {
@@ -52,7 +53,9 @@ export class ProductList extends Component {
     return (
       <div>
         <SetListProduct data={data} />
-        <MemoComponent data={data} />
+        <Suspense fallback={<h2>Product list is loading...</h2>}>
+          <MemoComponent data={data} />
+        </Suspense>
         {this.state.value}
         <Button
           type="primary"
