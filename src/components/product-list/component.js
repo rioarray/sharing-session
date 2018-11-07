@@ -1,38 +1,35 @@
-import React, { Component, lazy, Suspense } from 'react';
-import { Avatar, Button } from 'antd';
+import React, { Component, Fragment, lazy, Suspense } from 'react';
+import axios from 'axios';
+import { Avatar, Button, Col, Icon, Row } from 'antd';
 
 const MemoComponent = lazy(() => import('./data-list'));
+const loadingIcon = <Icon type="loading" style={{ fontSize: 24 }} spin tip="Loading..." />;
 
-const data = [
-  {
-    title: 'OPPO F5 Black',
-    image: 'https://static.bmdstatic.com/pk/product/thumbnail/5a0b9df258490.jpg',
-    description: 'Prosesor: Mediatek MT6763T Octa-core 2.5GHz, Kapasitas: 32GB, RAM: 4GB, Ukuran Layar: 6.0 inch,',
-  },
-  {
-    title: 'VIVO V5s Gold',
-    image: 'https://static.bmdstatic.com/pk/product/thumbnail/59af74710705d.jpg',
-    description: 'Prosesor: Mediatek MT6763T Octa-core 2.5GHz, Kapasitas: 32GB, RAM: 4GB, Ukuran Layar: 6.0 inch,',
-  },
-  {
-    title: 'VIVO V5 Plus Gold',
-    image: 'https://static.bmdstatic.com/pk/product/thumbnail/59af7805a9615.jpg',
-    description: 'Prosesor: Mediatek MT6763T Octa-core 2.5GHz, Kapasitas: 32GB, RAM: 4GB, Ukuran Layar: 6.0 inch,',
-  },
-  {
-    title: 'VIVO Y53 - Black',
-    image: 'https://static.bmdstatic.com/pk/product/thumbnail/VIVO-Y53-Black-Merchant--1952638713-201772895629.jpg',
-    description: 'Prosesor: Mediatek MT6763T Octa-core 2.5GHz, Kapasitas: 32GB, RAM: 4GB, Ukuran Layar: 6.0 inch,',
-  },
-];
 function SetListProduct(props) {
-  return props.data.map((item, index) => (
-    <div key={index}>
-      <Avatar src={item.image} size={100} />
-      <div className="product-title">{item.title}</div><br />
-      <div className="product-description">{item.description}</div>
-    </div>
-  ));
+  const content = props.data.map((item, index) => {
+    const thumbnail = item['im:image'][2].label;
+    const artist = item['im:artist'].label;
+    const albums = item['im:name'].label;
+    const price = item['im:price'].label;
+
+    return (
+      <Row
+        key={index}
+        gutter={16}
+        style={{ padding: '5px 0' }}
+      >
+        <Col lg={2} md={2} sm={2}>
+          <Avatar src={thumbnail} shape="square" style={{ height: '100%', width: '100%' }} />
+        </Col>
+        <Col lg={22} md={22} sm={22}>
+          <h3 style={{ display: 'inline-block', marginBottom: 0 }}>{artist}</h3>
+          <div>{albums}</div>
+          <div style={{ fontWeight: 'bold', fontSize: 16, paddingTop: 25 }}>{price}</div>
+        </Col>
+      </Row>
+    );
+  });
+  return content;
 }
 
 export class ProductList extends Component {
@@ -41,9 +38,19 @@ export class ProductList extends Component {
 
     this.state = {
       value: '',
+      product: [],
     };
 
     this.onClick = this.onClick.bind(this);
+  }
+  componentDidMount() {
+    const url = 'https://itunes.apple.com/id/rss/topalbums/limit=3/json';
+    axios.get(url)
+      .then((response) => {
+        this.setState({
+          product: response.data.feed.entry,
+        });
+      });
   }
   onClick(e) {
     e.preventDefault();
@@ -51,19 +58,29 @@ export class ProductList extends Component {
   }
   render() {
     return (
-      <div>
-        <SetListProduct data={data} />
-        <Suspense fallback={<h2>Product list is loading...</h2>}>
-          <MemoComponent data={data} />
-        </Suspense>
-        {this.state.value}
-        <Button
-          type="primary"
-          onClick={this.onClick}
-        >
-          Click Here
-        </Button>
-      </div>
+      <Fragment>
+        <Row>
+          <Col lg={12} md={12}>
+            <SetListProduct data={this.state.product} />
+          </Col>
+          <Col lg={12} md={12}>
+            <Suspense fallback={loadingIcon}>
+              <MemoComponent data={this.state.product} />
+            </Suspense>
+          </Col>
+        </Row>
+        <Row>
+          <Col>{this.state.value}</Col>
+          <Col>
+            <Button
+              type="primary"
+              onClick={this.onClick}
+            >
+              Click Here
+            </Button>
+          </Col>
+        </Row>
+      </Fragment>
     );
   }
 };
