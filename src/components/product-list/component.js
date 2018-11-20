@@ -1,8 +1,11 @@
 import React, { Component, Fragment, lazy, Suspense } from 'react';
 import axios from 'axios';
 import { Avatar, Button, Col, Icon, Row } from 'antd';
+import FuncGroupBandElement from './function-component';
+import MemoComponent from './data-list';
 
-const MemoComponent = lazy(() => import('./data-list'));
+// const MemoComponent = lazy(() => import('./data-list'));
+// const FuncGroupBandElement = lazy(() => import('./function-component'));
 const loadingIcon = <Icon type="loading" style={{ fontSize: 24 }} spin tip="Loading..." />;
 
 function SetListProduct(props) {
@@ -25,6 +28,7 @@ function SetListProduct(props) {
           <h3 style={{ display: 'inline-block', marginBottom: 0 }}>{artist}</h3>
           <div>{albums}</div>
           <div style={{ fontWeight: 'bold', fontSize: 16, paddingTop: 25 }}>{price}</div>
+          <FuncGroupBandElement name="ada" />
         </Col>
       </Row>
     );
@@ -54,11 +58,15 @@ export class ProductList extends Component {
   }
   onClick(e) {
     e.preventDefault();
-    this.setState({ value: 'Hai' });
+    this.setState({ value: 'Hello World' });
   }
   render() {
+    console.log("render parent")
     return (
       <Fragment>
+        <Row>
+          <Col><h1>{this.state.value}</h1></Col>
+        </Row>
         <Row>
           <Col lg={12} md={12}>
             <SetListProduct data={this.state.product} />
@@ -70,7 +78,6 @@ export class ProductList extends Component {
           </Col>
         </Row>
         <Row>
-          <Col>{this.state.value}</Col>
           <Col>
             <Button
               type="primary"

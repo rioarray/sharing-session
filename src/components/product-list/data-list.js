@@ -4,6 +4,7 @@ import { Avatar, Col, Row } from 'antd';
 
 export class MemoComponent extends Component {
   render() {
+    console.log("render childs class component");
     return (
       this.props.data.length > 0 &&
       this.props.data.map((item, index) => {
